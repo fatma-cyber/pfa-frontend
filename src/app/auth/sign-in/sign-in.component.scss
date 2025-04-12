@@ -1,0 +1,237 @@
+.auth-container {
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  overflow: hidden;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.auth-wrapper {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  box-shadow: none;
+  border-radius: 0;
+  overflow: hidden;
+  max-width: 900px;
+  background: white;
+}
+
+.auth-image {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f2f5;
+  position: relative;
+  overflow: hidden;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; // Changé de 'cover' à 'contain' pour afficher l'image entière
+    object-position: center;
+    padding: 20px; // Ajouté un peu d'espace autour de l'image
+    transition: transform 0.8s ease;
+    
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
+}
+
+.auth-card {
+  flex: 1;
+  padding: 5% 8%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+  
+  h1 {
+    font-size: 36px;
+    color: #2c3e50;
+    margin-bottom: 10px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+  
+  p {
+    color: #6c757d;
+    font-size: 18px;
+  }
+}
+
+form {
+  .form-group {
+    margin-bottom: 24px;
+    
+    label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: 500;
+      color: #333;
+      font-size: 15px;
+    }
+    
+    input {
+      width: 100%;
+      padding: 14px 18px;
+      border: 2px solid #e9ecef;
+      border-radius: 12px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      
+      &:focus {
+        outline: none;
+        border-color: #4a6cf7;
+        box-shadow: 0 0 0 4px rgba(74, 108, 247, 0.1);
+      }
+      
+      &.invalid {
+        border-color: #e74c3c;
+      }
+    }
+    
+    .error-message {
+      color: #e74c3c;
+      font-size: 13px;
+      margin-top: 6px;
+    }
+  }
+  
+  .remember-forgot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    
+    .remember-me {
+      display: flex;
+      align-items: center;
+      
+      input {
+        margin-right: 8px;
+        width: 18px;
+        height: 18px;
+      }
+      
+      label {
+        font-size: 15px;
+        color: #555;
+      }
+    }
+    
+    .forgot-password {
+      font-size: 15px;
+      color: #4a6cf7;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        color: #3152c9;
+        text-decoration: underline;
+      }
+    }
+  }
+  
+  .form-actions {
+    margin-top: 15px;
+    
+    button {
+      width: 100%;
+      padding: 16px;
+      background: #4a6cf7;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 17px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 10px rgba(74, 108, 247, 0.2);
+      
+      &:hover {
+        background: #3152c9;
+        box-shadow: 0 6px 15px rgba(74, 108, 247, 0.3);
+        transform: translateY(-2px);
+      }
+      
+      &:active {
+        transform: translateY(0);
+      }
+      
+      &:disabled {
+        background: #a0aec0;
+        cursor: not-allowed;
+        box-shadow: none;
+      }
+    }
+  }
+  
+  .form-footer {
+    text-align: center;
+    margin-top: 30px;
+    font-size: 15px;
+    color: #555;
+    
+    a {
+      color: #4a6cf7;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        color: #3152c9;
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 992px) {
+  .auth-wrapper {
+    flex-direction: row;
+  }
+}
+
+@media (max-width: 768px) {
+  .auth-wrapper {
+    flex-direction: column;
+    height: auto;
+  }
+  
+  .auth-image {
+    height: 40vh; // Augmenté de 30vh à 40vh
+    min-height: 300px; // Augmenté de 250px à 300px
+    
+    img {
+      max-height: 100%;
+      object-fit: contain;
+    }
+  }
+  
+  .auth-card {
+    padding: 40px 20px;
+  }
+  
+  .header {
+    h1 {
+      font-size: 30px;
+    }
+    
+    p {
+      font-size: 16px;
+    }
+  }
+}
