@@ -1,55 +1,89 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { AuthService } from '../../services/auth.service';
+import { SignUpRequest } from '../../model/sign-up-request.model';
 
 @Component({
   selector: 'app-sign-up',
   templateUrl: './sign-up.component.html',
   styleUrls: ['./sign-up.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule]
+  imports: [CommonModule, FormsModule]
 })
 export class SignUpComponent {
-  signupForm: FormGroup;
   isSubmitting = false;
   errorMessage = '';
-
+  signUpRequest: SignUpRequest = {
+    username: '',
+    email: '',
+    password: '',
+    firstName: '',
+    lastName: '',
+    confirmPassword: ''
+  };
+  
   constructor(
-    private fb: FormBuilder,
-    private router: Router
-  ) {
-    this.signupForm = this.fb.group({
-      username: ['', [Validators.required, Validators.minLength(3)]],
-      email: ['', [Validators.required, Validators.email]],
-      firstName: ['', Validators.required],
-      lastName: ['', Validators.required],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-      confirmPassword: ['', Validators.required]
-    }, { 
-      validators: this.passwordMatchValidator 
-    });
-  }
+    private router: Router,
+    private authService: AuthService
+  ) {}
 
-  passwordMatchValidator(g: FormGroup) {
-    const password = g.get('password')?.value;
-    const confirmPassword = g.get('confirmPassword')?.value;
-    return password === confirmPassword ? null : { 'mismatch': true };
+  passwordsMatch(): boolean {
+    return this.signUpRequest.password === this.signUpRequest.confirmPassword;
   }
 
   onSubmit() {
-    if (this.signupForm.invalid) {
+    // Basic validation
+    if (!this.signUpRequest.username || !this.signUpRequest.email || 
+        !this.signUpRequest.password || !this.signUpRequest.firstName || 
+        !this.signUpRequest.lastName) {
+      this.errorMessage = 'Please fill in all required fields';
+      return;
+    }
+    
+    if (!this.passwordsMatch()) {
+      this.errorMessage = 'Passwords do not match';
       return;
     }
     
     this.isSubmitting = true;
+    this.errorMessage = '';
     
-    // Here you would call your auth service to register
-    // For now, we'll just simulate and navigate to sign in
-    setTimeout(() => {
-      this.isSubmitting = false;
-      this.router.navigate(['/auth/sign-in']);
-    }, 1000);
+    // Create a copy of the signUpRequest without the confirmPassword field
+    const requestToSend = {
+      username: this.signUpRequest.username,
+      email: this.signUpRequest.email,
+      password: this.signUpRequest.password,
+      firstName: this.signUpRequest.firstName,
+      lastName: this.signUpRequest.lastName
+    };
+    
+    // Call the register method from AuthService
+    this.authService.register(requestToSend).subscribe({
+      next: (response) => {
+        this.isSubmitting = false;
+        
+        // Show success message or redirect to sign-in page
+        this.router.navigate(['/auth/sign-in'], { 
+          queryParams: { registered: 'success' } 
+        });
+      },
+      error: (err) => {
+        this.isSubmitting = false;
+        
+        // Extract meaningful error message from response
+        if (err.error) {
+          // The Spring backend returns error messages directly as strings
+          this.errorMessage = typeof err.error === 'string' ? err.error : 'Registration failed. Please check your information.';
+        } else if (err.status === 0) {
+          this.errorMessage = 'Unable to connect to the server. Please check your connection.';
+        } else {
+          this.errorMessage = 'Registration failed. Please try again later.';
+        }
+        
+        console.error('Registration failed:', err);
+      }
+    });
   }
 }

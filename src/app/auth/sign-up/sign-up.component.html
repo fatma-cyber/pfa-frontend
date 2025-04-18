@@ -5,19 +5,20 @@
       <p>Join our project management platform</p>
     </div>
     
-    <form [formGroup]="signupForm" (ngSubmit)="onSubmit()" novalidate>
+    <form (ngSubmit)="onSubmit()" novalidate>
       <div class="form-group">
         <label for="username">Username</label>
         <input 
           type="text" 
           id="username" 
-          formControlName="username" 
-          placeholder="Choose a username"
-          [ngClass]="{'invalid': signupForm.get('username')?.invalid && signupForm.get('username')?.touched}"
-        >
-        <div class="error-message" *ngIf="signupForm.get('username')?.invalid && signupForm.get('username')?.touched">
-          <span *ngIf="signupForm.get('username')?.errors?.['required']">Username is required</span>
-          <span *ngIf="signupForm.get('username')?.errors?.['minlength']">Username must be at least 3 characters</span>
+          name="username"
+          [(ngModel)]="signUpRequest.username" 
+          required 
+          minlength="3" 
+          #username="ngModel">
+        <div class="error" *ngIf="username.invalid && (username.dirty || username.touched)">
+          <div *ngIf="username.errors?.['required']">Username is required</div>
+          <div *ngIf="username.errors?.['minlength']">Username must be at least 3 characters</div>
         </div>
       </div>
 
@@ -27,11 +28,11 @@
           <input 
             type="text" 
             id="firstName" 
-            formControlName="firstName" 
-            placeholder="Your first name"
-            [ngClass]="{'invalid': signupForm.get('firstName')?.invalid && signupForm.get('firstName')?.touched}"
-          >
-          <div class="error-message" *ngIf="signupForm.get('firstName')?.invalid && signupForm.get('firstName')?.touched">
+            name="firstName"
+            [(ngModel)]="signUpRequest.firstName" 
+            required 
+            #firstName="ngModel">
+          <div class="error" *ngIf="firstName.invalid && (firstName.dirty || firstName.touched)">
             First name is required
           </div>
         </div>
@@ -41,11 +42,11 @@
           <input 
             type="text" 
             id="lastName" 
-            formControlName="lastName" 
-            placeholder="Your last name"
-            [ngClass]="{'invalid': signupForm.get('lastName')?.invalid && signupForm.get('lastName')?.touched}"
-          >
-          <div class="error-message" *ngIf="signupForm.get('lastName')?.invalid && signupForm.get('lastName')?.touched">
+            name="lastName"
+            [(ngModel)]="signUpRequest.lastName" 
+            required 
+            #lastName="ngModel">
+          <div class="error" *ngIf="lastName.invalid && (lastName.dirty || lastName.touched)">
             Last name is required
           </div>
         </div>
@@ -56,13 +57,14 @@
         <input 
           type="email" 
           id="email" 
-          formControlName="email" 
-          placeholder="your@email.com"
-          [ngClass]="{'invalid': signupForm.get('email')?.invalid && signupForm.get('email')?.touched}"
-        >
-        <div class="error-message" *ngIf="signupForm.get('email')?.invalid && signupForm.get('email')?.touched">
-          <span *ngIf="signupForm.get('email')?.errors?.['required']">Email is required</span>
-          <span *ngIf="signupForm.get('email')?.errors?.['email']">Please enter a valid email</span>
+          name="email"
+          [(ngModel)]="signUpRequest.email" 
+          required 
+          email 
+          #email="ngModel">
+        <div class="error" *ngIf="email.invalid && (email.dirty || email.touched)">
+          <div *ngIf="email.errors?.['required']">Email is required</div>
+          <div *ngIf="email.errors?.['email']">Please enter a valid email</div>
         </div>
       </div>
 
@@ -71,13 +73,14 @@
         <input 
           type="password" 
           id="password" 
-          formControlName="password" 
-          placeholder="Create a password"
-          [ngClass]="{'invalid': signupForm.get('password')?.invalid && signupForm.get('password')?.touched}"
-        >
-        <div class="error-message" *ngIf="signupForm.get('password')?.invalid && signupForm.get('password')?.touched">
-          <span *ngIf="signupForm.get('password')?.errors?.['required']">Password is required</span>
-          <span *ngIf="signupForm.get('password')?.errors?.['minlength']">Password must be at least 6 characters</span>
+          name="password"
+          [(ngModel)]="signUpRequest.password" 
+          required 
+          minlength="6" 
+          #password="ngModel">
+        <div class="error" *ngIf="password.invalid && (password.dirty || password.touched)">
+          <div *ngIf="password.errors?.['required']">Password is required</div>
+          <div *ngIf="password.errors?.['minlength']">Password must be at least 6 characters</div>
         </div>
       </div>
 
@@ -86,23 +89,25 @@
         <input 
           type="password" 
           id="confirmPassword" 
-          formControlName="confirmPassword" 
-          placeholder="Confirm your password"
-          [ngClass]="{'invalid': signupForm.errors?.['mismatch'] && signupForm.get('confirmPassword')?.touched}"
-        >
-        <div class="error-message" *ngIf="signupForm.errors?.['mismatch'] && signupForm.get('confirmPassword')?.touched">
+          name="confirmPassword"
+          [(ngModel)]="signUpRequest.confirmPassword" 
+          required 
+          #confirmPassword="ngModel">
+        <div class="error" *ngIf="confirmPassword.invalid && (confirmPassword.dirty || confirmPassword.touched)">
           Passwords do not match
         </div>
       </div>
 
+      <div class="error-message" *ngIf="errorMessage">
+        <div class="error-box">
+          <i class="error-icon">⚠️</i> {{ errorMessage }}
+        </div>
+      </div>
+
       <div class="form-actions">
-        <button 
-          type="submit" 
-          class="btn btn-primary" 
-          [disabled]="signupForm.invalid || isSubmitting"
-        >
+        <button type="submit" [disabled]="isSubmitting">
           <span *ngIf="!isSubmitting">Sign Up</span>
-          <span *ngIf="isSubmitting">Creating Account...</span>
+          <span *ngIf="isSubmitting">Signing Up...</span>
         </button>
       </div>
 

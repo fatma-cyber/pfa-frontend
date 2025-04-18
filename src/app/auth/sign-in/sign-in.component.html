@@ -10,38 +10,41 @@
         <p>Sign in to continue to the platform</p>
       </div>
       
-      <form [formGroup]="signinForm" (ngSubmit)="onSubmit()" novalidate>
+      <form (ngSubmit)="onSubmit()" novalidate>
         <div class="form-group">
           <label for="username">Username</label>
           <input 
             type="text" 
             id="username" 
-            formControlName="username" 
+            name="username"
+            [(ngModel)]="loginRequest.username" 
             placeholder="Enter your username"
-            [ngClass]="{'invalid': signinForm.get('username')?.invalid && signinForm.get('username')?.touched}"
+            required
           >
-          <div class="error-message" *ngIf="signinForm.get('username')?.invalid && signinForm.get('username')?.touched">
-            Username is required
-          </div>
         </div>
 
         <div class="form-group">
           <label for="password">Password</label>
           <input 
             type="password" 
-            id="password" 
-            formControlName="password" 
+            id="password"
+            name="password" 
+            [(ngModel)]="loginRequest.password" 
             placeholder="Enter your password"
-            [ngClass]="{'invalid': signinForm.get('password')?.invalid && signinForm.get('password')?.touched}"
+            required
           >
-          <div class="error-message" *ngIf="signinForm.get('password')?.invalid && signinForm.get('password')?.touched">
-            Password is required
+        </div>
+
+        <!-- Add error message container here, after both fields -->
+        <div class="error-message" *ngIf="errorMessage">
+          <div class="error-box">
+            <i class="error-icon">⚠️</i> {{ errorMessage }}
           </div>
         </div>
 
         <div class="remember-forgot">
           <div class="remember-me">
-            <input type="checkbox" id="rememberMe" formControlName="rememberMe">
+            <input type="checkbox" id="rememberMe" name="rememberMe" [(ngModel)]="loginRequest.rememberMe">
             <label for="rememberMe">Remember me</label>
           </div>
           <a href="#" class="forgot-password">Forgot password?</a>
@@ -51,7 +54,7 @@
           <button 
             type="submit" 
             class="btn btn-primary" 
-            [disabled]="signinForm.invalid || isSubmitting"
+            [disabled]="!loginRequest.username || !loginRequest.password || isSubmitting"
           >
             <span *ngIf="!isSubmitting">Sign In</span>
             <span *ngIf="isSubmitting">Signing In...</span>

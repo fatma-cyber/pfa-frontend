@@ -12,8 +12,8 @@ import { CommonModule } from '@angular/common';
 export class DashboardComponent {
   isSidebarCollapsed = false;
   user = {
-    name: 'John Doe',
-    role: 'Project Manager',
+    username: 'John Doe',
+    email: 'Project Manager',
     avatar: 'https://i.pravatar.cc/150?img=12'
   };
 
@@ -31,7 +31,11 @@ export class DashboardComponent {
     { title: 'API Documentation', status: 'Todo', due: '2025-04-20', priority: 'Low' }
   ];
 
-  constructor(private router: Router) {}
+  constructor(private router: Router) {
+
+    this.user = JSON.parse(window.localStorage.getItem('auth-user') || '{}');
+    this.user.avatar = this.user.avatar || 'https://i.pravatar.cc/150?img=12'; // Default avatar if not set
+  }
 
   toggleSidebar() {
     this.isSidebarCollapsed = !this.isSidebarCollapsed;
