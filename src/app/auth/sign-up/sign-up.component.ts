@@ -15,6 +15,7 @@ import { SignUpRequest } from '../../model/sign-up-request.model';
 export class SignUpComponent {
   isSubmitting = false;
   errorMessage = '';
+  successMessage = '';
   signUpRequest: SignUpRequest = {
     username: '',
     email: '',
@@ -33,56 +34,37 @@ export class SignUpComponent {
     return this.signUpRequest.password === this.signUpRequest.confirmPassword;
   }
 
-  onSubmit() {
-    // Basic validation
-    if (!this.signUpRequest.username || !this.signUpRequest.email || 
-        !this.signUpRequest.password || !this.signUpRequest.firstName || 
-        !this.signUpRequest.lastName) {
-      this.errorMessage = 'Please fill in all required fields';
-      return;
-    }
-    
-    if (!this.passwordsMatch()) {
-      this.errorMessage = 'Passwords do not match';
-      return;
-    }
-    
+  onSubmit(): void {
     this.isSubmitting = true;
     this.errorMessage = '';
-    
-    // Create a copy of the signUpRequest without the confirmPassword field
-    const requestToSend = {
-      username: this.signUpRequest.username,
-      email: this.signUpRequest.email,
-      password: this.signUpRequest.password,
-      firstName: this.signUpRequest.firstName,
-      lastName: this.signUpRequest.lastName
-    };
-    
-    // Call the register method from AuthService
-    this.authService.register(requestToSend).subscribe({
-      next: (response) => {
+    this.successMessage = '';
+
+    this.authService.register(this.signUpRequest).subscribe({
+      next: data => {
         this.isSubmitting = false;
-        
-        // Show success message or redirect to sign-in page
-        this.router.navigate(['/auth/sign-in'], { 
-          queryParams: { registered: 'success' } 
-        });
+        this.successMessage = 'Registration successful! You can now login.';
+        // Reset the form
+        this.signUpRequest = {
+          username: '',
+          email: '',
+          password: '',
+          firstName: '',
+          lastName: '',
+          confirmPassword: ''
+        };
+        // Redirection to login after 2 seconds
+        setTimeout(() => {
+          this.router.navigate(['/auth/sign-in']);
+        }, 2000);
       },
-      error: (err) => {
+      error: err => {
         this.isSubmitting = false;
         
-        // Extract meaningful error message from response
-        if (err.error) {
-          // The Spring backend returns error messages directly as strings
-          this.errorMessage = typeof err.error === 'string' ? err.error : 'Registration failed. Please check your information.';
-        } else if (err.status === 0) {
-          this.errorMessage = 'Unable to connect to the server. Please check your connection.';
+        if (err.error?.message) {
+          this.errorMessage = err.error.message;
         } else {
           this.errorMessage = 'Registration failed. Please try again later.';
         }
-        
-        console.error('Registration failed:', err);
       }
     });
   }

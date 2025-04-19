@@ -1,21 +1,18 @@
-import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
   standalone: true,
-  imports: [CommonModule]
+  imports: [CommonModule, RouterLink]
 })
-export class DashboardComponent {
+export class DashboardComponent implements OnInit {
   isSidebarCollapsed = false;
-  user = {
-    username: 'John Doe',
-    email: 'Project Manager',
-    avatar: 'https://i.pravatar.cc/150?img=12'
-  };
+  user: any = {};
 
   projects = [
     { name: 'Website Redesign', progress: 75, tasks: 24, completed: 18 },
@@ -31,10 +28,19 @@ export class DashboardComponent {
     { title: 'API Documentation', status: 'Todo', due: '2025-04-20', priority: 'Low' }
   ];
 
-  constructor(private router: Router) {
+  constructor(private router: Router, private authService: AuthService) {
+    const currentUser = this.authService.getCurrentUser();
+    if (currentUser) {
+      this.user = currentUser;
+      this.user.avatar = this.user.avatar || 'https://i.pravatar.cc/150?img=12';
+    } else {
+      this.router.navigate(['/auth/sign-in']);
+    }
+  }
 
-    this.user = JSON.parse(window.localStorage.getItem('auth-user') || '{}');
-    this.user.avatar = this.user.avatar || 'https://i.pravatar.cc/150?img=12'; // Default avatar if not set
+  ngOnInit() {
+    console.log("Token stocké:", localStorage.getItem('auth-token'));
+    console.log("Utilisateur connecté:", this.authService.getCurrentUser());
   }
 
   toggleSidebar() {
@@ -42,7 +48,7 @@ export class DashboardComponent {
   }
 
   logout() {
-    // Here you would call your auth service to log out
+    this.authService.logout();
     this.router.navigate(['/auth/sign-in']);
   }
 }

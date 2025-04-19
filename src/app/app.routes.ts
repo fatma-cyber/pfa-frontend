@@ -1,12 +1,12 @@
 import { Routes } from '@angular/router';
-
+import { SignInComponent } from './auth/sign-in/sign-in.component';
 import { SignUpComponent } from './auth/sign-up/sign-up.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
-import { SignInComponent } from './auth/sign-in/sign-in.component';
-
+import { ProjectsComponent } from './projects/projects.component';
+import { AuthGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
-  { path: '', redirectTo: '/auth/sign-in', pathMatch: 'full' },
+  { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
   { 
     path: 'auth', 
     children: [
@@ -14,6 +14,7 @@ export const routes: Routes = [
       { path: 'sign-up', component: SignUpComponent }
     ] 
   },
-  { path: 'dashboard', component: DashboardComponent },
-  { path: '**', redirectTo: '/auth/sign-in' }
+  { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
+  { path: 'projects', component: ProjectsComponent, canActivate: [AuthGuard] },
+  { path: '**', redirectTo: '/dashboard' }
 ];
