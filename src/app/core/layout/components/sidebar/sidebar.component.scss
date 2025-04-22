@@ -1,0 +1,155 @@
+/* filepath: src/app/core/layout/components/sidebar/sidebar.component.scss */
+$primary-color: #4a6cf7;
+$secondary-color: #6c757d;
+$sidebar-width: 250px;
+$sidebar-collapsed-width: 70px;
+$transition: all 0.3s ease;
+
+// Sidebar
+.sidebar {
+  width: $sidebar-width;
+  height: 100%;
+  background-color: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  transition: $transition;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  
+  &.collapsed {
+    width: $sidebar-collapsed-width;
+    
+    .logo h2,
+    .sidebar-nav li span {
+      display: none;
+    }
+    
+    .sidebar-nav li a {
+      display: flex;
+      justify-content: center;
+      padding: 15px 0;
+    }
+  }
+
+  .sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+    
+    .logo {
+      h2 {
+        color: $primary-color;
+        margin: 0;
+        font-size: 24px;
+        white-space: nowrap;
+      }
+    }
+  }
+  
+  .sidebar-nav {
+    padding-top: 20px;
+    overflow-y: auto;
+    flex-grow: 1;
+    
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      
+      li {
+        margin-bottom: 5px;
+        
+        a {
+          display: flex;
+          align-items: center;
+          padding: 12px 20px;
+          color: $secondary-color;
+          text-decoration: none;
+          transition: $transition;
+          border-radius: 8px;
+          cursor: pointer;
+          
+          svg {
+            margin-right: 15px;
+            fill: currentColor;
+            transition: $transition;
+          }
+          
+          span {
+            position: relative;
+            transition: $transition;
+            
+            &::after {
+              content: '';
+              position: absolute;
+              bottom: -3px;
+              left: 0;
+              width: 0;
+              height: 2px;
+              background-color: $primary-color;
+              transition: width 0.3s ease;
+            }
+          }
+          
+          &:hover {
+            color: $primary-color;
+            background-color: rgba($primary-color, 0.1);
+            
+            span::after {
+              width: 100%;
+            }
+            
+            svg {
+              transform: scale(1.1);
+            }
+          }
+        }
+        
+        &.active {
+          a {
+            color: $primary-color;
+            background-color: rgba($primary-color, 0.15);
+            font-weight: 500;
+            
+            span::after {
+              width: 100%;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// Mobile responsiveness
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    z-index: 1500;
+    transform: translateX(-100%);
+    
+    &.active {
+      transform: translateX(0);
+    }
+  }
+}
+
+// Media responsiveness
+@media (max-width: 992px) {
+  .sidebar:not(.collapsed) {
+    .logo h2 {
+      display: none;
+    }
+    
+    .sidebar-nav li span {
+      display: none;
+    }
+    
+    .sidebar-nav li a {
+      justify-content: center;
+      padding: 15px 0;
+    }
+  }
+}

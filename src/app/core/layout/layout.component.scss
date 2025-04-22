@@ -1,0 +1,95 @@
+/* filepath: src/app/core/layout/layout.component.scss */
+// Variables
+$primary-color: #4a6cf7;
+$secondary-color: #6c757d;
+$success-color: #28a745;
+$danger-color: #dc3545;
+$warning-color: #ffc107;
+$info-color: #17a2b8;
+$light-color: #f8f9fa;
+$dark-color: #343a40;
+$sidebar-width: 10px;
+$sidebar-collapsed-width: 70px;
+$border-radius: 8px;
+$transition: all 0.3s ease;
+
+// Dashboard Layout
+.dashboard {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  
+  &.sidebar-collapsed {
+    .sidebar {
+      width: $sidebar-collapsed-width;
+    }
+    
+    .main-content {
+      margin-left: $sidebar-collapsed-width;
+    }
+  }
+}
+
+// Sidebar positioning
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  z-index: 100;
+  width: $sidebar-width;
+  transition: $transition;
+}
+
+// Main Content - Fixed the double spacing issue
+.main-content {
+  flex: 1;
+  margin-left: $sidebar-width;
+  transition: $transition;
+  background-color: #f5f7fa;
+  display: flex;
+  flex-direction: column;
+  // Remove this line - it was causing double spacing
+  // width: calc(100% - $sidebar-width);
+}
+
+.dashboard-content {
+  padding: 12px 16px; // Reduced padding
+  overflow-y: auto;
+  flex: 1;
+}
+
+// Media Queries for Responsiveness
+@media (max-width: 992px) {
+  .sidebar {
+    width: $sidebar-collapsed-width;
+  }
+  
+  .main-content {
+    margin-left: $sidebar-collapsed-width;
+  }
+  
+  .dashboard.sidebar-collapsed .sidebar {
+    width: 0;
+  }
+  
+  .dashboard.sidebar-collapsed .main-content {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 0;
+    transform: translateX(-100%);
+  }
+  
+  .main-content {
+    margin-left: 0;
+  }
+  
+  .dashboard:not(.sidebar-collapsed) .sidebar {
+    transform: translateX(0);
+    width: $sidebar-width;
+  }
+}

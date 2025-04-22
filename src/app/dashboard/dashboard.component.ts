@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
+import { LayoutComponent } from '../core/layout/layout.component';
 import { AuthService } from '../services/auth.service';
 
 @Component({
@@ -8,12 +9,10 @@ import { AuthService } from '../services/auth.service';
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
   standalone: true,
-  imports: [CommonModule, RouterLink]
+  imports: [CommonModule, RouterLink, LayoutComponent]
 })
 export class DashboardComponent implements OnInit {
-  isSidebarCollapsed = false;
   user: any = {};
-
   projects = [
     { name: 'Website Redesign', progress: 75, tasks: 24, completed: 18 },
     { name: 'Mobile App Development', progress: 45, tasks: 36, completed: 16 },
@@ -28,27 +27,16 @@ export class DashboardComponent implements OnInit {
     { title: 'API Documentation', status: 'Todo', due: '2025-04-20', priority: 'Low' }
   ];
 
-  constructor(private router: Router, private authService: AuthService) {
+  constructor(private authService: AuthService) {
     const currentUser = this.authService.getCurrentUser();
     if (currentUser) {
       this.user = currentUser;
       this.user.avatar = this.user.avatar || 'https://i.pravatar.cc/150?img=12';
-    } else {
-      this.router.navigate(['/auth/sign-in']);
     }
   }
 
   ngOnInit() {
     console.log("Token stocké:", localStorage.getItem('auth-token'));
     console.log("Utilisateur connecté:", this.authService.getCurrentUser());
-  }
-
-  toggleSidebar() {
-    this.isSidebarCollapsed = !this.isSidebarCollapsed;
-  }
-
-  logout() {
-    this.authService.logout();
-    this.router.navigate(['/auth/sign-in']);
   }
 }

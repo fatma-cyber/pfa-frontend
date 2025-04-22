@@ -1,0 +1,11 @@
+<div class="dashboard" [class.sidebar-collapsed]="isSidebarCollapsed">
+  <app-sidebar [isSidebarCollapsed]="isSidebarCollapsed"></app-sidebar>
+  
+  <main class="main-content">
+    <app-header [isSidebarCollapsed]="isSidebarCollapsed" (toggleSidebar)="toggleSidebar()"></app-header>
+    
+    <div class="dashboard-content">
+      <ng-content></ng-content>
+    </div>
+  </main>
+</div>

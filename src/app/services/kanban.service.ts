@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { Task } from '../model/Task.model';
+
 
 const API_URL = 'http://localhost:8081/api/kanbans';
 
@@ -41,5 +43,9 @@ export class KanbanService {
 
   searchKanbans(name: string): Observable<Kanban[]> {
     return this.http.get<Kanban[]>(`${API_URL}/search?name=${name}`);
+  }
+
+  getTasksByKanbanId(kanbanId: number): Observable<Task[]> {
+    return this.http.get<Task[]>(`${API_URL}/${kanbanId}/tasks`);
   }
 }

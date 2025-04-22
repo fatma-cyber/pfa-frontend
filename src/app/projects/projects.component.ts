@@ -3,13 +3,14 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { KanbanService, Kanban } from '../services/kanban.service';
 import { RouterModule, RouterLink } from '@angular/router';
+import { LayoutComponent } from '../core/layout/layout.component';
 
 @Component({
   selector: 'app-projects',
   templateUrl: './projects.component.html',
   styleUrls: ['./projects.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule, RouterLink],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule, RouterLink,LayoutComponent],
   providers: [DatePipe]
 })
 export class ProjectsComponent implements OnInit {
