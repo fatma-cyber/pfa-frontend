@@ -6,9 +6,6 @@ import { LoginRequest } from '../model/login-request.model';
 import { JwtResponse } from '../model/jwt-response.model';
 
 const AUTH_API = 'http://localhost:8081/api/auth/';
-const httpOptions = {
-  headers: new HttpHeaders({ 'Content-Type': 'application/json' })
-};
 
 @Injectable({
   providedIn: 'root'
@@ -16,12 +13,28 @@ const httpOptions = {
 export class AuthService {
   constructor(private http: HttpClient) { }
 
+  // Helper method to get basic headers
+  private getBasicHeaders(): HttpHeaders {
+    return new HttpHeaders({ 'Content-Type': 'application/json' });
+  }
+  
+  // Helper method to get HTTP headers with auth token
+  private getAuthHeaders(): HttpHeaders {
+    const token = localStorage.getItem('auth-token');
+    return new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': token ? `Bearer ${token}` : ''
+    });
+  }
+
   login(credentials: LoginRequest): Observable<any> {
-    return this.http.post(AUTH_API + 'signin', credentials, httpOptions);
+    const options = { headers: this.getBasicHeaders() };
+    return this.http.post(AUTH_API + 'signin', credentials, options);
   }
 
   register(user: SignUpRequest): Observable<any> {
-    return this.http.post(AUTH_API + 'signup', user, httpOptions);
+    const options = { headers: this.getBasicHeaders() };
+    return this.http.post(AUTH_API + 'signup', user, options);
   }
 
   logout(): void {
@@ -50,9 +63,9 @@ export class AuthService {
     }
     return null;
   }
-
+  
   isLoggedIn(): boolean {
     const token = this.getToken();
-    return !!token && token.length > 0;
+    return !!token;
   }
 }
