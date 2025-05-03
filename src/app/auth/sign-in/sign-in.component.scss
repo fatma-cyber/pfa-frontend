@@ -31,13 +31,14 @@
   overflow: hidden;
   
   img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain; // Changé de 'cover' à 'contain' pour afficher l'image entière
-    object-position: center;
-    padding: 20px; // Ajouté un peu d'espace autour de l'image
-    transition: transform 0.8s ease;
     
+    width:100%;
+    height: 100%;
+    object-fit: cover; // Changé de 'cover' à 'contain' pour afficher l'image entière
+    object-position: center;
+    padding: 0; // Ajouté un peu d'espace autour de l'image
+    transition: transform 0.8s ease;
+   
     &:hover {
       transform: scale(1.05);
     }
