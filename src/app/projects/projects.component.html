@@ -18,32 +18,44 @@
     </button>
   </div>
 
-  <!-- Tableau des projets -->
-  <div class="projects-table-container">
-    <div *ngIf="isLoading" class="loading-spinner">
-      <div class="spinner"></div>
-      <p>Chargement des projets...</p>
-    </div>
+  <!-- Message de chargement -->
+  <div *ngIf="isLoading" class="loading-spinner-container">
+    <div class="spinner"></div>
+    <p>Chargement des projets...</p>
+  </div>
 
-    <table *ngIf="!isLoading && projects.length > 0" class="projects-table">
+  <!-- Message si aucun projet -->
+  <div *ngIf="!isLoading && projects.length === 0" class="no-projects">
+    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24">
+      <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"></path>
+    </svg>
+    <p>Aucun projet trouvé. Commencez par créer un nouveau projet.</p>
+  </div>
+
+  <!-- Tableau unifié des projets -->
+  <div *ngIf="!isLoading && projects.length > 0" class="projects-table-container">
+    <table class="projects-table">
       <thead>
         <tr>
           <th>Nom</th>
           <th>Description</th>
           <th>Date de début</th>
           <th>Date de fin</th>
+         
           <th>Créateur</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let project of projects">
-          <td>{{ project.name }}</td>
-          <td>{{ project.description }}</td>
-          <td>{{ project.startDate | date:'dd/MM/yyyy' }}</td>
-          <td>{{ project.endDate | date:'dd/MM/yyyy' }}</td>
-          <td>{{ project.creatorUsername }}</td>
-          <td class="actions">
+          <td data-label="Nom">{{ project.name }}</td>
+          <td data-label="Description">{{ project.description }}</td>
+          <td data-label="Date de début">{{ project.startDate | date:'dd/MM/yyyy' }}</td>
+          <td data-label="Date de fin">{{ project.endDate | date:'dd/MM/yyyy' }}</td>
+          
+          <td data-label="Créateur">{{ project.creator?.username }}</td>
+          <td class="actions" data-label="Actions">
+            <!-- Actions disponibles pour tous les projets, qu'on soit créateur ou assigné -->
             <button class="action-btn edit" (click)="editProject(project)" title="Modifier">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
                 <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"></path>
@@ -54,7 +66,7 @@
                 <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"></path>
               </svg>
             </button>
-            <button class="action-btn view" [routerLink]="['/projects', project.id]" title="voir kanban">
+            <button class="action-btn view" [routerLink]="['/projects', project.id]" title="Voir kanban">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
                 <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"></path>
               </svg>
@@ -63,14 +75,6 @@
         </tr>
       </tbody>
     </table>
-
-    <div *ngIf="!isLoading && projects.length === 0" class="no-projects">
-      <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24">
-        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"></path>
-        <path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm0 8c-1.65 0-3-1.35-3-3s1.35-3 3-3 3 1.35 3 3-1.35 3-3 3z"></path>
-      </svg>
-      <p>Aucun projet trouvé. Commencez par créer un nouveau projet.</p>
-    </div>
   </div>
 
   <!-- Popup de formulaire de projet -->
@@ -134,4 +138,4 @@
     </div>
   </div>
 </div>
-</app-layout>  
+</app-layout>

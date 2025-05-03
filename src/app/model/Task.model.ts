@@ -21,6 +21,7 @@ export interface Task {
   assignee?: {
     id: number;
     username: string;
+    email:String;
   };
   deadline?: string;
   color?: string;

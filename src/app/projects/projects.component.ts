@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { Component, Inject, OnInit } from '@angular/core';
+import { DatePipe, CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { KanbanService, Kanban } from '../services/kanban.service';
+import { KanbanService } from '../services/kanban.service';
 import { RouterModule, RouterLink } from '@angular/router';
 import { LayoutComponent } from '../core/layout/layout.component';
+import { Kanban } from '../model/kanban.model';
 
 @Component({
   selector: 'app-projects',
@@ -15,6 +16,8 @@ import { LayoutComponent } from '../core/layout/layout.component';
 })
 export class ProjectsComponent implements OnInit {
   projects: Kanban[] = [];
+  createdProjects: Kanban[] = [];
+  assignedProjects: Kanban[] = [];
   projectForm: FormGroup;
   isLoading = false;
   showForm = false;
@@ -43,10 +46,17 @@ export class ProjectsComponent implements OnInit {
 
   loadProjects() {
     this.isLoading = true;
-    this.kanbanService.getAllKanbans().subscribe({
+    this.kanbanService.getAllProjectsForUser().subscribe({
       next: (data) => {
         this.projects = data;
         this.isLoading = false;
+        
+        // Assignation des informations pour l'affichage du créateur et du rôle
+        const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+        this.projects.forEach(project => {
+          project.isCreator = project.creator?.id === currentUser.id;
+          project.role = project.isCreator ? 'Créateur' : 'Assigné';
+        });
       },
       error: (err) => {
         console.error('Erreur lors du chargement des projets', err);
