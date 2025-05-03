@@ -43,7 +43,7 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   min-height: calc(100vh - 60px);
   // Use a different animation name to avoid affecting other elements if fadeIn is reused
   animation: containerFadeIn 0.7s ease-out; 
-
+  
   // Effet "confettis" coloré en arrière-plan
   &::before {
     content: "";
@@ -231,6 +231,7 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden; // Important pour le border-radius
   border-top: 5px solid $primary-color;
   transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  z-index: 1; // Assurez-vous qu'il est inférieur au popup
 
   &::after {
     content: '';
@@ -511,34 +512,34 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
 // --- Styles du Modal/Popup ---
 .modal-backdrop {
-  position: fixed; // Changé de absolute à fixed
+  position: fixed; // Position fixe pour couvrir toute la fenêtre
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(15, 23, 42, 0.85); // Fond plus sombre et opaque
-  backdrop-filter: blur(8px); // Flou plus prononcé
-  z-index: 1000; // Doit être en dessous du modal
-  animation: fadeIn 0.3s ease-out;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5); // Fond semi-transparent
+  backdrop-filter: blur(5px); // Ajoute un effet de flou
+  z-index: 1000; // Assurez-vous que c'est supérieur à tout autre élément
 }
 
 .modal {
-  position: fixed; // Changé de absolute à fixed
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  align-items: center; // Centre verticalement dans la fenêtre
-  justify-content: center; // Centre horizontalement dans la fenêtre
-  z-index: 1001; // Doit être au-dessus du backdrop
-  padding: 20px; // Espace autour du contenu du modal
-  overflow-y: auto; // Permet le scroll si le modal est trop grand
+  position: fixed; // Position fixe pour rester visible même en défilant
+  top: 50%; // Centre verticalement
+  left: 50%; // Centre horizontalement
+  transform: translate(-60%, -60%); // Ajustement pour centrer parfaitement
+  z-index: 1500; // Plus élevé que le backdrop
+  width: 90%;
+  max-width: 600px; // Largeur maximale
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); // Ombre pour un effet visuel
+  overflow: hidden;
+  animation: popupFade 0.6s gradientShifts ; // Animation améliorée
 }
 
 .modal-content {
   width: 100%;
-  max-width: 550px; // Largeur du popup
+  max-width: 600px; // Largeur du popup
   background: linear-gradient(145deg, #ffffff, #f8fafc);
   border-radius: 24px;
   overflow: visible; // Changé de hidden à visible ou supprimer pour l'ombre
@@ -572,6 +573,10 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   0% {
     opacity: 0;
     transform: scale(0.95);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.03) translateY(0); // Légère mise à l'échelle pour un effet de rebond
   }
   100% {
     opacity: 1;
@@ -843,8 +848,44 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   .projects-table {
     // Optionnel: Transformer le tableau en liste de cartes
     // display: block; // Ou grid
+   
 
-    th { display: none; } // Cacher les en-têtes
+    
+
+    th {
+      background: linear-gradient(135deg, 
+        rgba($primary-color, 0.15) 0%, 
+        rgba($purple-color, 0.12) 50%,
+        rgba($primary-color, 0.08) 100%);
+      color: $dark-color;
+      font-weight: 700;
+      border-bottom: 1px solid rgba($primary-color, 0.15);
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      padding: 20px 24px;
+      position: relative;
+      transition: all 0.3s ease;
+  
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(90deg, 
+          rgba($primary-color, 0.7),
+          rgba($purple-color, 0.5),
+          rgba($primary-color, 0.1));
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.4s ease;
+      }
+  
+      &:hover::after {
+        transform: scaleX(1);
+      }
+    }
 
     tr {
       display: block;
@@ -903,10 +944,13 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     margin-bottom: 28px; // Rétablir la marge
   }
 }
+.projects-table th {
+  font-size: 14px;
+}
 
 @media (max-width: 480px) {
    .projects-container {
-    padding: 16px;
+    padding: 32px;
   }
    .modal-header, .modal-body, .form-actions {
      padding-left: 24px;
