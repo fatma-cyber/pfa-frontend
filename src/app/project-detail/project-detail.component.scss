@@ -1487,3 +1487,43 @@ form {
     max-height: 90vh;
   }
 }
+
+.comment-block {
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  background-color: #f9fafb;
+}
+
+.comment-header {
+  display: flex;
+  justify-content: flex-start;
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-bottom: 0.2rem;
+}
+
+.comment-content {
+  margin: 0;
+}
+
+.comment-assignee {
+  display: flex;
+  align-items: center;
+  
+  .avatar {
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, $primary-color, $info-color);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    margin-right: 8px;
+    border: 2px solid white;
+    box-shadow: 0 2px 5px rgba($primary-color, 0.2);
+  }
+}

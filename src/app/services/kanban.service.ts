@@ -1,20 +1,27 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams, HttpErrorResponse } from '@angular/common/http';
+import {
+  HttpClient,
+  HttpHeaders,
+  HttpParams,
+  HttpErrorResponse,
+} from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { Task, TaskStatus } from '../model/Task.model';
+import { Comment } from '../model/Comment.model';
 import { Kanban } from '../model/kanban.model';
-
 
 const API_BASE_URL = 'http://localhost:8081/api';
 const KANBAN_API_URL = `${API_BASE_URL}/kanbans`;
 const TASK_API_URL = `${API_BASE_URL}/tasks`;
+const COMMENT_API_URL = `${API_BASE_URL}/comments`;
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class KanbanService {
-  constructor(private http: HttpClient) { }
+  
+  constructor(private http: HttpClient) {}
 
   private getAuthHeaders(): HttpHeaders {
     const token = localStorage.getItem('auth-token');
@@ -24,26 +31,35 @@ export class KanbanService {
     }
     return headers;
   }
+  getCurrentUser() {
+    return {
+      username: localStorage.getItem('auth-username'),
+      email: localStorage.getItem('auth-email'),
+      id: localStorage.getItem('auth-id'),
+    };
+  }
 
   getAllKanbans(): Observable<Kanban[]> {
     const options = { headers: this.getAuthHeaders() };
-    return this.http.get<Kanban[]>(KANBAN_API_URL, options).pipe(
-      catchError(this.handleError<Kanban[]>('getAllKanbans', []))
-    );
+    return this.http
+      .get<Kanban[]>(KANBAN_API_URL, options)
+      .pipe(catchError(this.handleError<Kanban[]>('getAllKanbans', [])));
   }
 
   getKanbanById(id: number): Observable<Kanban> {
     const url = `${KANBAN_API_URL}/${id}`;
     const options = { headers: this.getAuthHeaders() };
-    return this.http.get<Kanban>(url, options).pipe(
-      catchError(this.handleError<Kanban>(`getKanbanById id=${id}`))
-    );
+    return this.http
+      .get<Kanban>(url, options)
+      .pipe(catchError(this.handleError<Kanban>(`getKanbanById id=${id}`)));
   }
 
   createKanban(kanban: Kanban): Observable<Kanban> {
     const options = { headers: this.getAuthHeaders() };
     return this.http.post<Kanban>(KANBAN_API_URL, kanban, options).pipe(
-      tap((newKanban: Kanban) => console.log(`Kanban créé avec id=${newKanban.id}`)),
+      tap((newKanban: Kanban) =>
+        console.log(`Kanban créé avec id=${newKanban.id}`)
+      ),
       catchError(this.handleError<Kanban>('createKanban'))
     );
   }
@@ -52,7 +68,7 @@ export class KanbanService {
     const url = `${KANBAN_API_URL}/${id}`;
     const options = { headers: this.getAuthHeaders() };
     return this.http.put<Kanban>(url, kanban, options).pipe(
-      tap(_ => console.log(`Kanban mis à jour id=${id}`)),
+      tap((_) => console.log(`Kanban mis à jour id=${id}`)),
       catchError(this.handleError<Kanban>('updateKanban'))
     );
   }
@@ -61,7 +77,7 @@ export class KanbanService {
     const url = `${KANBAN_API_URL}/${id}`;
     const options = { headers: this.getAuthHeaders() };
     return this.http.delete<any>(url, options).pipe(
-      tap(_ => console.log(`Kanban supprimé id=${id}`)),
+      tap((_) => console.log(`Kanban supprimé id=${id}`)),
       catchError(this.handleError<any>('deleteKanban'))
     );
   }
@@ -70,20 +86,31 @@ export class KanbanService {
     const url = `${KANBAN_API_URL}/search`;
     let params = new HttpParams().set('name', name);
     const options = { headers: this.getAuthHeaders(), params: params };
-    return this.http.get<Kanban[]>(url, options).pipe(
-      catchError(this.handleError<Kanban[]>('searchKanbans', []))
-    );
+    return this.http
+      .get<Kanban[]>(url, options)
+      .pipe(catchError(this.handleError<Kanban[]>('searchKanbans', [])));
   }
 
   getTasksByKanbanId(kanbanId: number): Observable<Task[]> {
     const url = `${TASK_API_URL}/kanban/${kanbanId}`;
     const options = { headers: this.getAuthHeaders() };
-    return this.http.get<Task[]>(url, options).pipe(
-      catchError(this.handleError<Task[]>('getTasksByKanbanId', []))
-    );
+    return this.http
+      .get<Task[]>(url, options)
+      .pipe(catchError(this.handleError<Task[]>('getTasksByKanbanId', [])));
+  }
+  getCommentsByTaskId(taskId: number): Observable<Comment[]> {
+    const url = `${TASK_API_URL}/task/${taskId}`;
+    const options = { headers: this.getAuthHeaders() };
+    return this.http
+      .get<Comment[]>(url, options)
+      .pipe(catchError(this.handleError<Comment[]>('getCommentsByTaskId', [])));
   }
 
-  createTask(kanbanId: number, taskData: Task, assigneeEmail?: string | null): Observable<Task> {
+  createTask(
+    kanbanId: number,
+    taskData: Task,
+    assigneeEmail?: string | null
+  ): Observable<Task> {
     const url = `${TASK_API_URL}/kanban/${kanbanId}`;
     let params = new HttpParams();
     if (assigneeEmail !== undefined && assigneeEmail !== null) {
@@ -91,19 +118,49 @@ export class KanbanService {
     }
     const options = {
       headers: this.getAuthHeaders(),
-      params: params
+      params: params,
     };
 
     console.log(`POST ${url} with params: ${params.toString()}`);
     console.log('Body:', JSON.stringify(taskData));
+    console.log('headers*******:', this.getAuthHeaders());
 
     return this.http.post<Task>(url, taskData, options).pipe(
       tap((newTask: Task) => console.log(`Tâche créée avec id=${newTask.id}`)),
       catchError(this.handleError<Task>('createTask'))
     );
   }
+  createComment(
+    taskId: number,
+    commentData: Comment,
+    assigneeEmail?: string | null
+  ): Observable<Comment> {
+    const url = `${COMMENT_API_URL}/task/${taskId}`;
+    let params = new HttpParams();
+    if (assigneeEmail !== undefined && assigneeEmail !== null) {
+      params = params.set('assigneeEmail', assigneeEmail);
+    }
+    const options = {
+      headers: this.getAuthHeaders(),
+      params: params,
+    };
 
-  updateTask(taskId: number, taskData: Task, assigneeEmail?: string | null): Observable<Task> {
+    console.log(`POST ${url} with params: ${params.toString()}`);
+    console.log('Body:', JSON.stringify(commentData));
+
+    return this.http.post<Comment>(url, commentData, options).pipe(
+      tap((newComment: Comment) =>
+        console.log(`Comment créée`)
+      ),
+      catchError(this.handleError<Comment>('createTask'))
+    );
+  }
+
+  updateTask(
+    taskId: number,
+    taskData: Task,
+    assigneeEmail?: string | null
+  ): Observable<Task> {
     const url = `${TASK_API_URL}/${taskId}`;
     let params = new HttpParams();
     if (assigneeEmail !== undefined && assigneeEmail !== null) {
@@ -111,14 +168,14 @@ export class KanbanService {
     }
     const options = {
       headers: this.getAuthHeaders(),
-      params: params
+      params: params,
     };
 
     console.log(`PUT ${url} with params: ${params.toString()}`);
-    console.log('Body:', JSON.stringify(taskData));
+    console.log('Body task updated*******:', JSON.stringify(taskData));
 
     return this.http.put<Task>(url, taskData, options).pipe(
-      tap(_ => console.log(`Tâche mise à jour id=${taskId}`)),
+      tap((_) => console.log(`Tâche mise à jour id=${taskId}`)),
       catchError(this.handleError<Task>('updateTask'))
     );
   }
@@ -127,7 +184,7 @@ export class KanbanService {
     const url = `${TASK_API_URL}/${taskId}`;
     const options = { headers: this.getAuthHeaders() };
     return this.http.delete<any>(url, options).pipe(
-      tap(_ => console.log(`Tâche supprimée id=${taskId}`)),
+      tap((_) => console.log(`Tâche supprimée id=${taskId}`)),
       catchError(this.handleError<any>('deleteTask'))
     );
   }
@@ -135,10 +192,12 @@ export class KanbanService {
   updateTaskStatus(taskId: number, status: TaskStatus): Observable<Task> {
     const url = `${TASK_API_URL}/${taskId}/status`;
     const options = { headers: this.getAuthHeaders() };
-    return this.http.patch<Task>(url, { status: status.toString() }, options).pipe(
-      tap(_ => console.log(`Statut tâche mis à jour id=${taskId}`)),
-      catchError(this.handleError<Task>('updateTaskStatus'))
-    );
+    return this.http
+      .patch<Task>(url, { status: status.toString() }, options)
+      .pipe(
+        tap((_) => console.log(`Statut tâche mis à jour id=${taskId}`)),
+        catchError(this.handleError<Task>('updateTaskStatus'))
+      );
   }
 
   /**
@@ -147,9 +206,11 @@ export class KanbanService {
   getProjectsWhereInvolved(): Observable<Kanban[]> {
     const url = `${KANBAN_API_URL}/involved`;
     const options = { headers: this.getAuthHeaders() };
-    return this.http.get<Kanban[]>(url, options).pipe(
-      catchError(this.handleError<Kanban[]>('getProjectsWhereInvolved', []))
-    );
+    return this.http
+      .get<Kanban[]>(url, options)
+      .pipe(
+        catchError(this.handleError<Kanban[]>('getProjectsWhereInvolved', []))
+      );
   }
 
   /**
@@ -167,7 +228,8 @@ export class KanbanService {
       } else {
         console.error(
           `Backend returned code ${error.status}, ` +
-          `body was: ${JSON.stringify(error.error)}`);
+            `body was: ${JSON.stringify(error.error)}`
+        );
       }
       return throwError(() => error);
     };

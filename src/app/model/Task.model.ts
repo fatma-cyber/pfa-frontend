@@ -1,3 +1,5 @@
+import { Comment } from "./Comment.model";
+
 export enum TaskStatus {
   TODO = 'TODO',
   IN_PROGRESS = 'IN_PROGRESS',
@@ -27,4 +29,5 @@ export interface Task {
   color?: string;
   storyPoints?: number;
   kanbanId?: number;
+  comments?: Comment[];
 }
