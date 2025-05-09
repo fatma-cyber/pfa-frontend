@@ -1527,3 +1527,38 @@ form {
     box-shadow: 0 2px 5px rgba($primary-color, 0.2);
   }
 }
+
+.document-block {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem;
+  border-bottom: 1px solid #ccc;
+}
+
+.doc-name {
+  color: #007bff;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.dropdown {
+  position: relative;
+}
+
+.menu-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.dropdown-menu {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background-color: white;
+  border: 1px solid #ddd;
+  padding: 0.5rem;
+  z-index: 1000;
+}

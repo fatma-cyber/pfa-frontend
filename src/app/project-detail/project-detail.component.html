@@ -390,27 +390,75 @@
               </div>
             </div>
           </div>
+          <div class="form-group">
+            <label for="document">Documents</label>
+            <div
+              *ngFor="let document of taskForm.get('documents')?.value"class="comment-block">
+
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <a
+                  (click)="openDoc(document.id)"
+                  class="doc-name"
+                  href="javascript:void(0)"
+                  style="text-decoration: underline; color: #007bff; cursor: pointer;"
+                >
+                  {{ document.name }}
+                </a>
+              
+                <button
+                  (click)="downloadDoc(document.id, document.name, document.fileType)"
+                  style="background-color: #4caf50; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;"
+                >
+                  Télécharger
+                </button>
+              </div>
+              
+              <!-- <a
+                (click)="openDoc(document.id)"
+                class="doc-name"
+                href="javascript:void(0)"
+              >
+                {{ document.name }}
+              </a>
+              <button
+                (click)="downloadDoc(document.id, document.name, document.fileType)">
+                Télécharger
+              </button> -->
+            </div>
+            <div class="file-upload-wrapper">
+              <input
+                type="file"
+                id="fileInput"
+                (change)="onFileSelected($event)"
+                multiple
+                hidden
+              />
+
+              <button
+                type="button"
+                class="upload-btn"
+                (click)="triggerFileInput()"
+              >
+                📎 Ajouter une pièce jointe
+              </button>
+            </div>
+            <!-- ajouter d'un nouveau document -->
+            <!-- <input type="file" (change)="onFileSelected($event)" multiple /> -->
+            <!--  <input type="file" (change)="onUploadFiles($event)" name="files" multiple class="form-control" /> -->
+          </div>
 
           <div class="form-group">
             <label for="comment">Commentaires</label>
-
-            <!-- Liste des commentaires -->
-            <!-- <div *ngFor="let comment of taskForm.get('comments')?.value">
-              <p>{{ comment.content }}</p>
-              <small>{{ comment.createdAt | date : "short" }}</small>
-            </div> -->
             <div
               *ngFor="let comment of taskForm.get('comments')?.value"
               class="comment-block"
             >
-             
-                <div class="comment-assignee" *ngIf="comment.author.username">
-                  <span class="avatar">{{
-                    comment.author.username?.charAt(0) || "U"
-                  }}</span>
-                  <span>{{ comment.author.username }}</span>
-                </div>
-              
+              <div class="comment-assignee" *ngIf="comment.author.username">
+                <span class="avatar">{{
+                  comment.author.username?.charAt(0) || "U"
+                }}</span>
+                <span>{{ comment.author.username }}</span>
+              </div>
 
               <div class="comment-header">
                 <small class="comment-date">{{

@@ -30,4 +30,5 @@ export interface Task {
   storyPoints?: number;
   kanbanId?: number;
   comments?: Comment[];
+  documents?:Document[];
 }

@@ -16,6 +16,11 @@ import { UserService } from '../services/user.service';
 import { LayoutComponent } from '../core/layout/layout.component';
 import { Task, TaskPriority, TaskStatus } from '../model/Task.model';
 import { FilterPipe } from '../pipes/filter.pipe';
+import {
+  HttpErrorResponse,
+  HttpEvent,
+  HttpEventType,
+} from '@angular/common/http';
 
 @Component({
   selector: 'app-project-detail',
@@ -34,6 +39,13 @@ import { FilterPipe } from '../pipes/filter.pipe';
 })
 export class ProjectDetailComponent implements OnInit, OnDestroy {
   user: any;
+  selectedFiles: File[] = [];
+  selectedNewFiles: File[] = [];
+
+  openedMenuId: number | null = null;
+
+  filenames: string[] = [];
+  fileStatus = { status: '', requestType: '', percent: 0 };
   projectId!: number;
   project: Kanban | null = null;
   tasks: Task[] = [];
@@ -135,14 +147,13 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
             this.normalizeTaskData(task);
             return task;
           });
-          console.log("*******this.tasks********",this.tasks)
+          console.log('*******this.tasks********', this.tasks);
           this.isLoading = false; // Chargement terminé
         },
         error: (err: any) => {
           this.handleLoadingError(err, 'Erreur lors du chargement des tâches');
         },
       });
-      
   }
 
   private handleLoadingError(err: any, defaultMessage: string): void {
@@ -165,7 +176,8 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
       storyPoints: [null, [Validators.min(0)]],
       color: ['#6366f1'],
       comments: [[]],
-      comment: ['']  // <= champ temporaire pour la saisie
+      comment: [''], // <= champ temporaire pour la saisie
+      documents: [[]],
     });
     this.assigneeNotFoundError = null;
   }
@@ -223,7 +235,8 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
       deadline: null,
       assigneeEmail: null,
       storyPoints: null,
-      comments: [] 
+      comments: [],
+      documents: [],
     });
     this.assigneeNotFoundError = null;
     this.showTaskForm = true;
@@ -244,6 +257,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
       storyPoints: task.storyPoints,
       color: task.color || '#6366f1',
       comments: task.comments,
+      documents: task.documents,
     });
     this.showTaskForm = true;
   }
@@ -258,37 +272,90 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
   }
 
   addComment(): void {
-  const content = this.taskForm.get('comment')?.value?.trim();
-  if (!content) return;
-  this.user = this.kanbanService.getCurrentUser();
-  const newComment: Comment = {
-    //id: 0,
-    content: content,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    author: {
-      id: this.user.id,
-      username: this.user.username,
-      email: this.user.email,
+    const content = this.taskForm.get('comment')?.value?.trim();
+    if (!content) return;
+    this.user = this.kanbanService.getCurrentUser();
+    const newComment: Comment = {
+      //id: 0,
+      content: content,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      author: {
+        id: this.user.id,
+        username: this.user.username,
+        email: this.user.email,
+      },
+    };
+
+    const updatedComments = [
+      ...(this.taskForm.get('comments')?.value || []),
+      newComment,
+    ];
+
+    this.taskForm.patchValue({
+      comments: updatedComments,
+      comment: '', // Réinitialise le champ
+    });
+  }
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      // Convertir les fichiers sélectionnés en tableau
+      const selectedFiles = Array.from(input.files);
+      this.selectedNewFiles = Array.from(input.files);
+      // Récupérer les fichiers existants dans le formulaire
+      const existingDocuments = this.taskForm.get('documents')?.value || [];
+      // Ajouter les nouveaux fichiers aux anciens (fusionner les tableaux)
+      const updatedFiles = [...existingDocuments, ...selectedFiles];
+
+      this.taskForm.get('documents')?.setValue(this.selectedFiles);
+      // Mettre à jour le tableau des fichiers dans le formulaire
+      this.taskForm.get('documents')?.setValue(updatedFiles);
     }
-  };
-  
- /*  const newComment = {
-    content,
-    createdAt: new Date(),
+  }
+  /*  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
 
-    // Ajoute ici l’auteur si tu veux : author: { id, name }
-  }; */
+    if (input.files && input.files.length > 0) {
+      const fileList: File[] = Array.from(input.files);
+      this.taskForm.get('documents')?.setValue(fileList);
+    } else {
+      this.taskForm.get('documents')?.setValue([]);
+    }
+  } */
 
-  const updatedComments = [...(this.taskForm.get('comments')?.value || []), newComment];
+  toggleMenu(documentId: number): void {
+    this.openedMenuId = this.openedMenuId === documentId ? null : documentId;
+  }
+  triggerFileInput(): void {
+    const fileInput = document.getElementById('fileInput') as HTMLInputElement;
+    fileInput.click();
+  }
 
-  this.taskForm.patchValue({
-    comments: updatedComments,
-    comment: '' // Réinitialise le champ
-  });
-}
+  openDoc(id: number) {
+    this.kanbanService.openDocument(id);
+  }
 
+  downloadDoc(id: number, name: string, type: string) {
+    this.kanbanService.downloadDocument(id).subscribe((blob) => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = name; // Tu peux aussi utiliser le vrai nom si tu le passes
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    });
+  }
+  openDocument(documentId: number): void {
+    this.kanbanService.openDocument(documentId);
+  }
 
+  // Appeler cette méthode pour télécharger le document
+  downloadDocument(documentId: number): void {
+    this.kanbanService.downloadDocument(documentId);
+  }
   saveTask(): void {
     if (this.taskForm.invalid) {
       this.taskForm.markAllAsTouched();
@@ -309,17 +376,80 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
       deadline: this.taskForm.value.deadline || undefined,
       color: this.taskForm.value.color || '#6366f1',
       storyPoints: this.taskForm.value.storyPoints || undefined,
-      comments: this.taskForm.get('comments')?.value
+      comments: this.taskForm.get('comments')?.value,
+      documents: [], // Pas besoin de renseigner les documents ici
+    };
+
+    const assigneeEmail = this.taskForm.value.assigneeEmail || null;
+    //const files: File[] = this.taskForm.get('documents')?.value || [];
+    const files:  File[] =this.selectedNewFiles;
+    /*   console.log('Payload Tâche:', taskPayload);*/
+    console.log('files###################:', files);
+
+    this.saveTaskSubscription?.unsubscribe();
+
+    if (this.isEditingTask && this.currentTask?.id) {
+      this.saveTaskSubscription = this.kanbanService
+        .updateTask(this.currentTask.id, taskPayload, files, assigneeEmail)
+        .subscribe({
+          next: (updatedTask: Task) =>
+            this.handleTaskSaveSuccess(
+              updatedTask,
+              'Tâche mise à jour avec succès'
+            ),
+          error: (err) => this.handleTaskSaveError(err),
+        });
+    } else {
+      this.saveTaskSubscription = this.kanbanService
+        .createTaskAndDocument(
+          this.projectId,
+          taskPayload,
+          files,
+          assigneeEmail
+        )
+        .subscribe({
+          next: (newTask: Task) =>
+            this.handleTaskSaveSuccess(newTask, 'Tâche créée avec succès'),
+          error: (err) => this.handleTaskSaveError(err),
+        });
+    }
+
+    //this.loadProjectDetails(); // Charger projet ET tâches
+    //this.loadTasks()
+  }
+
+  /* saveTask(): void {
+    if (this.taskForm.invalid) {
+      this.taskForm.markAllAsTouched();
+      return;
+    }
+
+    this.isSavingTask = true;
+    this.assigneeNotFoundError = null;
+
+    // Créer l'objet Task à envoyer dans le corps de la requête
+    const taskPayload: Task = {
+      ...(this.isEditingTask &&
+        this.currentTask?.id && { id: this.currentTask.id }),
+      title: this.taskForm.value.title,
+      description: this.taskForm.value.description,
+      status: this.taskForm.value.status,
+      priority: this.taskForm.value.priority,
+      deadline: this.taskForm.value.deadline || undefined,
+      color: this.taskForm.value.color || '#6366f1',
+      storyPoints: this.taskForm.value.storyPoints || undefined,
+      comments: this.taskForm.get('comments')?.value,
+      documents: [],
+      //documents: this.taskForm.get('documents')?.value,
     };
 
     // Extraire l'email pour l'envoyer séparément en paramètre
     const assigneeEmail = this.taskForm.value.assigneeEmail || null;
-
+  
     console.log('Payload Tâche:', taskPayload);
     console.log('Email Assigné:', assigneeEmail);
 
     this.saveTaskSubscription?.unsubscribe();
-    
 
     if (this.isEditingTask && this.currentTask?.id) {
       this.saveTaskSubscription = this.kanbanService
@@ -334,7 +464,8 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
         });
     } else {
       this.saveTaskSubscription = this.kanbanService
-        .createTask(this.projectId, taskPayload, assigneeEmail)
+        .createTaskWithFiles(this.projectId, taskPayload, assigneeEmail,)
+        //.createTask(this.projectId, taskPayload, assigneeEmail)
         .subscribe({
           next: (newTask: Task) =>
             this.handleTaskSaveSuccess(newTask, 'Tâche créée avec succès'),
@@ -342,7 +473,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
         });
     }
     this.loadProjectDetails(); // Charger projet ET tâches
-  }
+  } */
 
   private normalizeTaskData(taskData: any): void {
     if (typeof taskData.status === 'string') {
@@ -381,6 +512,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     this.closeTaskForm();
 
     this.showToastNotification(message, 'success');
+    this.loadProjectDetails();
   }
 
   private handleTaskSaveError(error: any): void {
