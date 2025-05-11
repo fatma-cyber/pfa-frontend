@@ -138,6 +138,7 @@ export class KanbanService {
       tap((newTask: Task) => console.log(`Tâche créée avec id=${newTask.id}`)),
       switchMap((newTask: Task): Observable<Task> => {
         if (files.length > 0) {
+          console.log("tache crée et ya des files")
           return this.createDocument(newTask.id, files, assigneeEmail).pipe(
             tap(() =>
               console.log(`Documents uploadés pour la tâche ${newTask.id}`)
@@ -171,7 +172,7 @@ export class KanbanService {
       tap(() => console.log(`Tâche mise à jour id=${taskId}`)),
       switchMap((updatedTask: Task) => {
         if (files.length > 0) {
-          console.log("y a un file")
+          //console.log("y a un file")
           return this.createDocument(taskId, files, assigneeEmail).pipe(
             tap(() =>
               console.log(`Documents uploadés pour la tâche ${taskId}`)
@@ -211,7 +212,7 @@ export class KanbanService {
       headers: this.getAuthHeadersForDocument(),
       params: params,
     };
-    console.log('**********files:::::::::::::::::', files);
+    //console.log('**********files:::::::::::::::::', files);
     return this.http.post<Document[]>(url, formData, options).pipe(
       tap((newDocuments: Document[]) =>
         console.log(`Documents créés :`, newDocuments)
